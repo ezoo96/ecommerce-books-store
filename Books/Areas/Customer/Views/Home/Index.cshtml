@@ -1,0 +1,70 @@
+﻿@model IEnumerable<Books.Domain.Entities.Product>
+@using Books.Domain.Entities;
+@using Books.Domain.Utilities
+@using Microsoft.AspNetCore.Identity
+@inject SignInManager<ApplicationUser> SignInManager
+
+@{
+    ViewData["Title"] = "Books";
+#pragma warning disable
+}
+
+<div class="w-100">
+    <partial name="_SlideShow" />
+</div>
+<br />
+<div class="row">
+    @foreach (var product in Model)
+    {
+        <div class="col-md-6 col-lg-4 col-xs-6 border-primary mb-3">
+            <div class="card mb-3" style="max-width: 540px;">
+                <div class="row g-0">
+                    <div class="col-md-12">
+                        <div class="card-header text-white" style="background:linear-gradient(to right, #6f444d 0%, #f6edb5 100%);">
+                            <p class="card-text">
+                                <h5 class="card-title">
+                                    @product.Title
+                                </h5>
+                            </p>
+                        </div>
+                    </div>
+                    <div class="col-md-6">
+                        <img src="@product.ImageUrl" alt="@product.Title" class="w-100 h-equal">
+                    </div>
+                    <div class="col-md-6">
+                        <div class="card-body">
+                            <p class="card-text"><b>Category: </b>@product.Category.Name</p>
+                            <p class="card-text"><b>By: </b>@product.Author.FullName</p>
+                            <p class="card-text"><b>Price:</b> <strike>@product.Price.ToString("c")</strike></p>
+                            <p class="card-text"><b>As low as: </b>@(((product.Price)*(Rabat.DISCOUNT)).ToString())</p>
+                        </div>
+                    </div>
+                    <div class="col-md-12">
+                        <div class="card-footer">
+                            <div class="row justify-content-between">
+
+                                <a class="btn btn-outline-primary" style="width:40%;" asp-action="Details" asp-route-productId="@product.Id">
+                                    <i class="bi bi-eye-fill"></i> Show Details
+                                </a>
+                                @if (product.InStock > 0)
+                                {
+                                    <span class="badge bg-success w-25" style="height:22px;">
+                                        In Stock: @product.InStock
+                                    </span>
+                                }
+                                else
+                                {
+                                    <span class="badge bg-danger w-25" style="height:22px;">
+                                        <strike>In Stock: 0</strike>
+                                    </span>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+

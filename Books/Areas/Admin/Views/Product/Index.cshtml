@@ -1,0 +1,116 @@
+﻿@{
+    ViewData["Title"] = "Index";
+#pragma warning disable
+}
+<div class="container p-3">
+    <div class="row pt-4">
+        <div class="col-6">
+            <h2 class="text-primary">Products</h2>
+        </div>
+        <div class="col-6 text-end">
+            <a class="btn btn-primary" asp-controller="Product" asp-action="Upsert">
+                <i class="bi bi-plus-circle"></i> &nbsp; New
+            </a>
+        </div>
+    </div>
+    <br>
+    <table id="products" class="table table-striped table-hover stripe w-100">
+        <thead>
+            <tr>
+                <th scope="col">
+                    @Html.DisplayName("Title")
+                </th>        
+                <th scope="col">
+                    @Html.DisplayName("ISBN")
+                </th>
+                <th scope="col">
+                    @Html.DisplayName("Author")
+                </th>
+                <th scope="col">
+                    @Html.DisplayName("Category")
+                </th>
+                <th scope="col">
+                    @Html.DisplayName("Price")
+                </th>
+                <th scope="col"></th>
+            </tr>
+        </thead>
+    </table>
+</div>
+
+@section scripts
+{
+
+<script>
+$(document).ready(function () {
+    var table = $("#products").DataTable({
+        ajax: {
+            url: "/api/v1/products/",
+            type: "GET",
+            dataType: "json",
+            dataSrc:""
+        },
+        columns: [
+            {
+                data: "title",
+                render: function(data, type, product) {
+                    return "<a href='/Admin/Product/Upsert/" + product.id + "'>" + product.title + "</a>";
+                    
+                }
+            },
+            {
+                data: "isbn",
+            },
+            {
+                data: "author.fullName",
+            },              
+            {
+                data: "category.name",
+            },
+            {
+                data: "price",
+            },
+            {
+                data: "id",
+                render: function(data, type, product) {
+                    return "<a class='btn-link js-delete' data-product-id=" + product.id + "><i class='bi bi-trash-fill' style='color: #ff4136; cursor:pointer;'></a>";
+                },
+                className: 'text-light dt-body-center'
+            }
+        ]
+    });
+    $("#products").on("click", ".js-delete", function () {
+        var button = $(this);
+        Swal.fire({
+            title: `Are you sure you want to delete this product ?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#d33',
+            cancelButtonColor: '#5ea2bc',
+            confirmButtonText: 'Confirm'
+        }).then((result) => {
+             if (result.isConfirmed) {
+                 $.ajax({
+                     url: "/api/v1/products/" + button.attr("data-product-id"),
+                     type: 'DELETE',
+                     dataType: "json",
+                     dataSrc:"",
+                     success: function (data) {
+                         if (data) {
+                             table.ajax.reload();
+                             toastr.success("Product deleted successfully.");
+                             table.row(button.parents("tr")).remove().draw();
+                          }
+                     }, 
+                     error: function(){
+                        toastr.error("Something went wrong!");
+                     }
+                 })
+             }
+        }).catch(()=>{
+            toastr.error("An unexpected error occurred please try again later !");
+        })
+   }) 
+});
+</script>
+} 
